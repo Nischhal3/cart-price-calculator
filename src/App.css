@@ -1,38 +1,157 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.form {
+  color: #132226;
+  padding: 20px;
+  background-color: white;
+  box-sizing: border-box;
+  border: 2px solid gray;
+  box-shadow: 5px 10px #888888;
+  border-radius: 1%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.message{
+  font-size: 14px;
+  font-weight: bold;
+  color: red;
+}
+h3 {
+  align-self: flex-start;
+  text-decoration: underline;
+}
+
+.field-area, .currentDate
+.price {
+  padding-left: 0px;
+  align-self: start;
+  border: none;
+  margin: 2px;
+}
+
+label {
+  font-weight: bold;
+  display: inline-block;
+}
+
+input {
+  margin-left: 10px;
+  border: 0;
+  outline: 0;
+  border-bottom: dotted 2px #720017;
+}
+
+input:focus {
+  border-bottom-style: solid;
+}
+
+.currentDate {
+  border: none;
+  display: flex;
+  flex-direction: row;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.date{
+  margin-left: 10px;
+}
+
+.picker{
+  padding: 10px;
+}
+
+.btn {
+  margin: 20px 0px 20px 0px;
+  width: 60%;
+  border: none;
+  padding: 5px 5px;
+  color: #132226;
+  font-weight: bold;
+  background-color: teal;
+  cursor: pointer;
+  align-self: center;
+  box-sizing: border-box;
+  border: 2px solid gray;
+  box-shadow: 2px 2px #888888;
+  cursor: pointer;
+}
+
+.price, .time {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+@media only screen and (min-width: 280px) and (max-width: 360px) {
+  form {
+    padding: 2px;
+    width: 90vw;
   }
-  to {
-    transform: rotate(360deg);
+
+  h3 {
+    font-size: 16px;
+    align-self: center;
+  }
+
+  label,
+  input,
+  .price {
+    font-size: 14px;
+  }
+
+  .field-area, .currentDate, .picker {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+  }
+  .currentDate > p{
+    display: none;
+  }
+
+  .picker{
+    margin-left: 0px;
+  }
+  .btn {
+    width: 90%;
+  }
+
+  .price {
+    align-self: center;
+  }
+}
+
+@media only screen and (min-width: 375px) and (max-width: 400px){
+  form {
+    padding: 3px;
+    width: 85vw;
+  }
+  .picker {
+    margin-left: 30px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+  }
+  
+}
+
+@media only screen and (min-width: 541px) and (max-width: 912px) {
+  form {
+    width: 75vw;
+  }
+  h3 {
+    font-size: 35px;
+  }
+  label,
+  input,
+  .price {
+    font-size: 26px;
   }
 }
