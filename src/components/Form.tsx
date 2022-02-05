@@ -1,20 +1,35 @@
 import React, { useState } from "react";
-import {  checkTotalCharge, distanceFee,isRushHour,itemsFee, numberOfItems, rushHourFee } from './Functions';
+import {  
+  calculateTotalPrice,
+  handleError,
+  hasAmountExceeded,
+  isInputValid,
+} from './Functions';
+import 'react-calendar/dist/Calendar.css';
 import DateTimePicker from 'react-datetime-picker';
 
+// Error messages : For localization these variables can be placed in separate file
+const cartMessage: string = 'Cart value is not valid!';
+const distanceMessage: string = 'Distance is not valid!';
+const amountMessage: string = 'Amount value is not valid!';
+const itemsMessage: string = 'Too many items in the cart! Maximum number of item is 15';
+const maxCartValue: number = 100;
+
 const Form = () => {
-  const [deliveryPrice,setDeliveryPrice] = useState(0);
-  // Conerting GMT format date to UTC
-  const UTC = new Date(new Date().toUTCString().slice(0,-4));
+  const [deliveryPrice,setDeliveryPrice] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
-  console.log('UTC',UTC);
-  const [inputDate, setInputDate] = useState(UTC);
+  
+  // Converting Europe/Helsinki tiem zone to UTC
+  const currentUTC = new Date(new Date().toUTCString().slice(0,-4));
+  const [inputDate, setInputDate] = useState(currentUTC);
+
   const onChange = (inputDate: Date) =>{
       setInputDate(inputDate);
   }
-  
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
+    // Fetching data from form
     const data = new FormData(event.currentTarget);
     const formObject = Object.fromEntries(data.entries());
     const cartValue: number = +formObject.price;
@@ -23,64 +38,41 @@ const Form = () => {
 
     const pickedHour = inputDate.getHours();
     const pickedDay = inputDate.getDay() + 1;
-    console.log('Day', pickedDay, 'Hour', pickedHour);
-    let surcharge: number = 0;
-    let distanceCharge:number = 0 ;
+
     let total: number = 0;
 
-    // Checking if cart value is valid number or not
-    console.log('Check number',cartValue);
-
-    if(cartValue === 0 || isNaN(cartValue)){
-      setErrorMessage('Please enter valid number in Cart Value');
-      setTimeout(()=>{
-        setErrorMessage('');
-      }, 2000)
-      return;
-    }
-    //If cart value is 100 or more than 100
-    if(cartValue >= 100){
-      console.log("Value over 100")
-      setDeliveryPrice(0);
+    if(!isInputValid(cartValue)){
+      handleError(setErrorMessage,cartMessage)
       return;
     }
 
-    // If cart value is less than 10 euro
-    if(cartValue < 10){
-      surcharge = 10 - cartValue;
-      console.log('Sur-charge',surcharge.toFixed(2));
+    if(!isInputValid(distance)){
+      handleError(setErrorMessage,distanceMessage)
+      return;
     }
+
+    if(!isInputValid(amount)){
+      handleError(setErrorMessage,amountMessage)
+      return;
+    }
+
+    // If cart value is 100 or more than 100
+    if(cartValue >= maxCartValue){
+      setDeliveryPrice('0');
+      return;
+    }
+
     // Checking for total number of items
-    const checkItem = numberOfItems(amount);
-
-    if(!checkItem){
-      setErrorMessage('Too many items in the cart!')
-      setTimeout(()=>{
-        setErrorMessage('');
-      }, 2000)
+    if(hasAmountExceeded(amount)){
+      handleError(setErrorMessage,itemsMessage);
       return;
     }
-    // Calculating distance charge
-    distanceCharge = + distanceFee(distance);
-    console.log('distance-charge', distanceCharge);  
 
-    // Checking number of items
-    const itemCharge: number = + itemsFee(amount);
-    console.log('itemCharge',itemCharge);
+    // Finalizing total price
+    total = calculateTotalPrice(cartValue, amount,distance,pickedHour, pickedDay) ;
     
-    total = itemCharge + distanceCharge + surcharge ;
-    
-    const isRushTime: boolean = isRushHour(pickedHour, pickedDay);
-    
-    if(isRushTime === true){
-      total = + rushHourFee(total);
-    }
-    
-    console.log('Total', total);
-    //Checking if total charge is above 15
-    total = + checkTotalCharge(total);
-
-    setDeliveryPrice(total);
+    // Finalizing delivery price
+    setDeliveryPrice(total.toFixed(2));
   };
 
   return (
@@ -89,28 +81,34 @@ const Form = () => {
       <h3>Delivery Fee Calculator</h3>
       <fieldset className="field-area">
         <label> Cart Value(€):</label>
-        <input type="text" name="price" required/>
+        <input type="text" name="price"/>
       </fieldset>
       <fieldset className="field-area">
         <label> Delivery distance(m): </label>
-        <input type="number" name="distance" placeholder='number only' required/>
+        <input type="number" name="distance"/>
       </fieldset>
       <fieldset className="field-area">
         <label> Amount of items: </label>
-        <input type="number" name="amount" placeholder='number only' required/>
+        <input type="number" name="amount"/>
       </fieldset>
       <div className="currentDate">
         <p>Time: </p>
         <DateTimePicker
-        className='picker'
         onChange={onChange}
         value={inputDate}
         disableClock= {true}
-        minDate={UTC}
+        className='picker'
+        minDate={currentUTC}
         />
       </div>
       <button type="submit" className="btn">
         Calculate delivery price
+      </button>
+      <button type="reset" className="btn" onClick={() => {
+        setDeliveryPrice('0');
+        setInputDate(currentUTC);
+      }}>
+       Place a new Order
       </button>
       <p className="price">Delivery price: {deliveryPrice}€</p>
     </form>
